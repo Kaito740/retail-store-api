@@ -1,6 +1,6 @@
 from django.db import models
-from inventory.models import Product
-from users.models import Customer
+from apps.inventory.models import Product
+from apps.users.models import Customer
 from django.conf import settings
 
 # Create your models here.
