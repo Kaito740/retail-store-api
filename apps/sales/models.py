@@ -3,6 +3,7 @@ from apps.inventory.models import Product
 from apps.users.models import Customer
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 
 # Create your models here.
 class Sale(models.Model):
@@ -12,10 +13,14 @@ class Sale(models.Model):
         PAID = "PAID", "Paid",
         CANCELLED = "CANCELLED", "Cancelled"
     status = models.CharField(max_length=10,choices=Status.choices,default=Status.DRAFT)
-    total_amount = models.DecimalField(max_digits=10,decimal_places=2,default=0)
+    total_amount = models.DecimalField(max_digits=10,decimal_places=2,default=0,validators=[MinValueValidator(0.00,message='El monto total no debe ser menor a 0.')])
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True,blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
+
+    def save(self,*args,**kwargs):
+        self.full_clean()
+        super().save(*args,**kwargs)
 
 class SaleItem(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
@@ -35,6 +40,6 @@ class SaleItem(models.Model):
             raise ValidationError('El subtotal calculado no es valido.')
 
     def save(self,*args,**kwargs):
-        self.full_clean()
         self.subtotal = self.quantity * self.unit_price
+        self.full_clean()
         super().save(*args, **kwargs)
