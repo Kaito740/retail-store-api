@@ -2,6 +2,7 @@ from django.db import models
 from apps.inventory.models import Product
 from apps.users.models import Customer
 from django.conf import settings
+from django.core.exceptions import ValidationError
 
 # Create your models here.
 class Sale(models.Model):
@@ -18,7 +19,22 @@ class Sale(models.Model):
 
 class SaleItem(models.Model):
     sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, null=True)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
     quantity = models.PositiveSmallIntegerField()
     unit_price = models.DecimalField(max_digits=10,decimal_places=2)
     subtotal = models.DecimalField(max_digits=10,decimal_places=2)
+
+    def clean(self):
+        if self.quantity <= 0:
+            raise ValidationError({'quantity':'La cantidad no debe ser 0.'})
+        if self.unit_price <= 0:
+            raise ValidationError({'unit_price':'El precio unitario no debe ser 0 o negativo.'})
+        
+        temp_subtotal = self.quantity * self.unit_price
+        if temp_subtotal <= 0:
+            raise ValidationError('El subtotal calculado no es valido.')
+
+    def save(self,*args,**kwargs):
+        self.full_clean()
+        self.subtotal = self.quantity * self.unit_price
+        super().save(*args, **kwargs)
