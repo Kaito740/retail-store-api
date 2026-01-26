@@ -8,8 +8,6 @@ from django.core.validators import MinValueValidator
 # Create your models here.
 class Sale(models.Model):
     class Status(models.TextChoices):
-        DRAFT = "DRAFT", "Draft",
-        CONFIRMED = "CONFIRMED", "Confirmed",
         PAID = "PAID", "Paid",
         CANCELLED = "CANCELLED", "Cancelled"
     status = models.CharField(max_length=10,choices=Status.choices,default=Status.DRAFT)
