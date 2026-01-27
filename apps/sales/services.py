@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from decimal import Decimal
 
 def _verify_products(product_id, quantity_requested):
-    product_data = Product.objects.filter(id=product_id).first()
+    product_data = Product.objects.select_for_update().filter(id=product_id).first()
     if not product_data:
         raise ValidationError('El producto no fue encontrado.')
     if product_data.stock_quantity < quantity_requested:
@@ -60,7 +60,7 @@ def sale_cancelled(*, sale_id):
         items_venta = SaleItem.objects.filter(sale=sale_data)
         
         for item in items_venta:
-            product = item.product 
+            product = Product.objects.select_for_update().filter(id=item.product.id).first()
             product.stock_quantity += item.quantity
             product.save(update_fields=['stock_quantity'])
 
