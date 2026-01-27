@@ -10,7 +10,7 @@ class Sale(models.Model):
     class Status(models.TextChoices):
         PAID = "PAID", "Paid",
         CANCELLED = "CANCELLED", "Cancelled"
-    status = models.CharField(max_length=10,choices=Status.choices,default=Status.DRAFT)
+    status = models.CharField(max_length=10,choices=Status.choices)
     total_amount = models.DecimalField(max_digits=10,decimal_places=2,default=0,validators=[MinValueValidator(0.00,message='El monto total no debe ser menor a 0.')])
     customer = models.ForeignKey(Customer, on_delete=models.SET_NULL, null=True,blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.PROTECT)
