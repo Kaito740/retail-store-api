@@ -28,7 +28,7 @@ def sale_paid(*, created_by, products_data, customer=None):
         accumulated_total = Decimal('0.00')
         
         for item in products_data:
-            product = _verify_products(item['product_id'], item['quantity'])
+            product = _verify_products(item['product'].id, item['quantity'])
             current_subtotal = _calculate_subtotal(item['quantity'], product.price)
             product.stock_quantity -= item['quantity']
             product.save(update_fields=['stock_quantity'])
