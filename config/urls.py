@@ -19,7 +19,8 @@ from django.urls import path, include
 
 api_patterns = [
     path('inventory/',include('apps.inventory.urls')),
-    path('users/',include('apps.users.urls'))
+    path('users/',include('apps.users.urls')),
+    path('sales/',include('apps.sales.urls'))
 ]
 
 urlpatterns = [
