@@ -41,3 +41,6 @@ class SaleItem(models.Model):
         self.subtotal = self.quantity * self.unit_price
         self.full_clean()
         super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return ''
