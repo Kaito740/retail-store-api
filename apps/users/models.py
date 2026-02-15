@@ -5,6 +5,15 @@ class Customer(models.Model):
     name = models.CharField(max_length=70, blank=True)
     phone = models.CharField(max_length=20, blank=True)
 
+    class Meta:
+        verbose_name = "cliente"
+        verbose_name_plural = "clientes"
+        ordering = ['name']
+        indexes = [
+            models.Index(fields=['phone']),
+            models.Index(fields=['name']),
+        ]
+
     def save(self,*args,**kwargs):
         if self.name:
             self.name = self.name.strip()
@@ -19,4 +28,4 @@ class Customer(models.Model):
         super().save(*args,**kwargs)
     
     def __str__(self):
-        return self.name
+        return f"{self.name} - {self.phone}"
