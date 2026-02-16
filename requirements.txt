@@ -1,0 +1,30 @@
+# Core Dependencies
+Django==6.0.1
+djangorestframework==3.15.2
+
+# Environment Variables
+python-dotenv==1.2.1  # Load .env files
+
+# CORS
+django-cors-headers==4.9.0  # Cross-Origin Resource Sharing
+
+# Database
+psycopg2-binary==2.9.9  # PostgreSQL adapter (optional, for production)
+
+# Development Dependencies
+django-debug-toolbar==4.4.0  # Debug toolbar for development
+
+# Testing
+pytest==8.3.2
+pytest-django==4.8.0
+pytest-cov==5.0.0
+
+# Code Quality
+flake8==7.1.1
+black==24.8.0
+
+# Documentation
+markdown==3.7  # For DRF browsable API
+
+# Production Server
+gunicorn==23.0.0  # WSGI HTTP Server

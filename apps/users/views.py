@@ -1,21 +1,31 @@
 """Vistas relacionadas con usuarios y clientes.
 
 Este módulo expone vistas simples basadas en clases de DRF para:
-- Listar/Crear `Customer`
-- Obtener/Actualizar/Eliminar un `Customer`
-- Registrar usuarios
-- Listar usuarios
-- Obtener/Actualizar/Eliminar usuarios
+- Listar/Crear `Customer` (clientes)
+- Login de usuarios/empleados
+- Listar usuarios existentes (solo lectura)
+
+NOTA IMPORTANTE: Este es un sistema para una tienda de juguetes minorista local.
+Los usuarios/empleados son creados EXCLUSIVAMENTE por el superusuario (jefe/admin)
+en el panel administrativo de Django. No existe registro público de usuarios.
+Los empleados solo pueden hacer login para registrar ventas.
 
 Comentarios: el proyecto es intencionalmente simple; las vistas usan
 querysets básicos y serializers definidos en `apps.users.serializers`.
 """
 
 from django.contrib.auth.models import User
-from .models import Customer
-from .serializers import CustomerSerializer, UserReadSerializer, UserRegisterSerializer, UserUpdateSerializer
-from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, CreateAPIView, ListAPIView
+from django.contrib.auth import authenticate
 from django.db.models.deletion import ProtectedError
+from rest_framework.authtoken.models import Token
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView, ListAPIView
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from rest_framework.permissions import AllowAny
+
+from .models import Customer
+from .serializers import CustomerSerializer, UserReadSerializer, UserUpdateSerializer
 
 
 class CustomerListCreateView(ListCreateAPIView):
@@ -39,20 +49,12 @@ class CustomerDetailView(RetrieveUpdateDestroyAPIView):
     serializer_class = CustomerSerializer
 
 
-class UserRegisterView(CreateAPIView):
-    """Registra un nuevo `User`.
-
-    - POST `/register/` crea un usuario usando `UserRegisterSerializer`.
-    El serializer se encarga de hashear el password.
-    """
-    queryset = User.objects.all()
-    serializer_class = UserRegisterSerializer
-
-
 class UserListView(ListAPIView):
     """Lista usuarios existentes.
 
     - GET `/` devuelve usuarios (read-only serializer).
+    - NOTA: Los usuarios solo pueden ser creados por el superusuario
+      en el panel administrativo de Django.
     """
     queryset = User.objects.all()
     serializer_class = UserReadSerializer
@@ -66,6 +68,8 @@ class UserDetailView(RetrieveUpdateDestroyAPIView):
     - Para lectura se usa `UserReadSerializer`.
     - `perform_destroy` captura `ProtectedError` y en vez de
       eliminar marca al usuario como inactivo.
+    - NOTA: Solo el superusuario puede crear usuarios nuevos
+      desde el panel administrativo.
     """
     queryset = User.objects.all()
     serializer_class = UserReadSerializer
@@ -78,7 +82,7 @@ class UserDetailView(RetrieveUpdateDestroyAPIView):
         if self.request.method in ['PUT', 'PATCH']:
             return UserUpdateSerializer
         return UserReadSerializer
-    
+
     def perform_destroy(self, instance):
         """Intento de eliminación: si falla por relaciones protegidas,
         se desactiva el usuario en su lugar.
@@ -89,3 +93,45 @@ class UserDetailView(RetrieveUpdateDestroyAPIView):
             # No eliminar para preservar integridad de datos
             instance.is_active = False
             instance.save()
+
+
+class LoginView(APIView):
+    """Login de usuario/empleado y generación de token de autenticación.
+
+    - POST `/login/` recibe username y password.
+    - Devuelve token si las credenciales son válidas.
+    - No requiere autenticación previa (AllowAny).
+    - NOTA: Los usuarios deben ser creados previamente por el superusuario
+      en el panel administrativo de Django.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        if not username or not password:
+            return Response(
+                {'error': 'Username y password son requeridos'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user = authenticate(username=username, password=password)
+
+        if user:
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({
+                'token': token.key,
+                'user': {
+                    'id': user.id,
+                    'username': user.username,
+                    'email': user.email,
+                    'first_name': user.first_name,
+                    'last_name': user.last_name,
+                }
+            })
+
+        return Response(
+            {'error': 'Credenciales inválidas'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
