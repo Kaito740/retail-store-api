@@ -22,7 +22,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .models import Customer
 from .serializers import CustomerSerializer, UserReadSerializer, UserUpdateSerializer
@@ -35,7 +35,9 @@ class CustomerListCreateView(ListCreateAPIView):
       Filtros: ?phone= (búsqueda parcial)
     - POST `/customers/` crea un cliente (usa `CustomerSerializer`).
     """
+    queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         queryset = Customer.objects.all()
@@ -57,6 +59,7 @@ class CustomerDetailView(RetrieveUpdateDestroyAPIView):
     """
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class UserListView(ListAPIView):
@@ -68,6 +71,7 @@ class UserListView(ListAPIView):
     """
     queryset = User.objects.all()
     serializer_class = UserReadSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class UserDetailView(RetrieveUpdateDestroyAPIView):
@@ -83,6 +87,7 @@ class UserDetailView(RetrieveUpdateDestroyAPIView):
     """
     queryset = User.objects.all()
     serializer_class = UserReadSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_serializer_class(self):
         """Selecciona el serializer según el método HTTP.

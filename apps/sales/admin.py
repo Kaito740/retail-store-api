@@ -11,7 +11,7 @@ class SaleItemInline(admin.TabularInline):
 class SaleAdmin(admin.ModelAdmin):
     list_display = ['id','customer', 'total_amount', 'created_by',  'status', 'created_at']
     inlines = [SaleItemInline]
-    search_fields = ['id','name','phone']
+    search_fields = ['id', 'customer__name', 'customer__phone']
     list_filter = ['created_by','status']
     readonly_fields = ['customer','total_amount','created_by','status','created_at']
 
