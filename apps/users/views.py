@@ -32,10 +32,20 @@ class CustomerListCreateView(ListCreateAPIView):
     """Lista todos los `Customer` y permite crear nuevos.
 
     - GET `/customers/` devuelve lista de clientes.
+      Filtros: ?phone= (búsqueda parcial)
     - POST `/customers/` crea un cliente (usa `CustomerSerializer`).
     """
-    queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
+
+    def get_queryset(self):
+        queryset = Customer.objects.all()
+        
+        # Filtro por teléfono (búsqueda parcial)
+        phone = self.request.query_params.get('phone')
+        if phone:
+            queryset = queryset.filter(phone__icontains=phone)
+        
+        return queryset
 
 
 class CustomerDetailView(RetrieveUpdateDestroyAPIView):
