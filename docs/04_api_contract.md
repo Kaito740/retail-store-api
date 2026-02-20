@@ -2,7 +2,7 @@
 
 Base URL: `/api/v1/`
 
-Todas las rutas (excepto `POST /api/v1/users/login/`) requieren autenticación mediante **Token**.
+Todas las rutas (excepto `POST /api/v1/users/login/` y `POST /api/v1/users/logout/`) requieren autenticación mediante **Token**.
 
 **Header requerido:**
 ```
@@ -49,6 +49,24 @@ Login de empleado. Devuelve el token de autenticación.
 **Response 401 Unauthorized** (credenciales inválidas):
 ```json
 { "error": "Credenciales inválidas" }
+```
+
+### `POST /api/v1/users/logout/`
+
+Logout de empleado. Invalida el token de autenticación.
+
+**Permiso:** Requiere autenticación (Token)
+
+**Request:** No requiere body
+
+**Header requerido:**
+```
+Authorization: Token <token>
+```
+
+**Response 200 OK:**
+```json
+{ "message": "Logout exitoso" }
 ```
 
 ---

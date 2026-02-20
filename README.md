@@ -119,11 +119,12 @@ Category ◄─── Product ◄─── SaleItem ───► Sale ───�
 ## Endpoints principales
 
 Base URL: `/api/v1/`  
-Todas las rutas requieren `Authorization: Token <token>`, excepto el login.
+Todas las rutas requieren `Authorization: Token <token>`, excepto login y logout.
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
 | `POST` | `/users/login/` | Login — devuelve token |
+| `POST` | `/users/logout/` | Logout — invalida token |
 | `GET/POST` | `/inventory/categories/` | Listar / crear categorías |
 | `GET/PUT/PATCH/DELETE` | `/inventory/categories/<id>/` | Detalle de categoría |
 | `GET/POST` | `/inventory/products/` | Listar / crear productos |

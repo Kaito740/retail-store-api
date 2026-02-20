@@ -4,7 +4,8 @@ from .views import (
     CustomerDetailView,
     UserListView,
     UserDetailView,
-    LoginView
+    LoginView,
+    LogoutView
 )
 
 urlpatterns = [
@@ -12,8 +13,9 @@ urlpatterns = [
     path('customers/', CustomerListCreateView.as_view(), name='customer-list'),
     path('customers/<int:pk>/', CustomerDetailView.as_view(), name='customer-detail'),
 
-    # Autenticación - Solo login, el registro lo hace el superusuario en el admin
+    # Autenticación
     path('login/', LoginView.as_view(), name='user-login'),
+    path('logout/', LogoutView.as_view(), name='user-logout'),
 
     # Usuarios - Solo lectura para empleados, el superusuario gestiona en admin
     path('', UserListView.as_view(), name='user-list'),

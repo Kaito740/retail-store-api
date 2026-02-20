@@ -150,3 +150,19 @@ class LoginView(APIView):
             {'error': 'Credenciales inválidas'},
             status=status.HTTP_401_UNAUTHORIZED
         )
+
+
+class LogoutView(APIView):
+    """Logout de usuario/empleado.
+
+    - POST `/logout/` invalida el token de autenticación.
+    - Requiere autenticación previa.
+    """
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        request.user.auth_token.delete()
+        return Response(
+            {'message': 'Logout exitoso'},
+            status=status.HTTP_200_OK
+        )
