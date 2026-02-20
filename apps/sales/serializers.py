@@ -12,6 +12,11 @@ class SaleItemSerializer(ModelSerializer):
             raise ValidationError('El producto debe estar activo para poder venderlo.')
         return value
 
+    def validate_quantity(self, value):
+        if value <= 0:
+            raise ValidationError('La cantidad debe ser mayor a 0.')
+        return value
+
 class SaleItemReadSerializer(ModelSerializer):
     class Meta:
         model = SaleItem
@@ -21,7 +26,7 @@ class SaleSerializer(ModelSerializer):
     items = SaleItemSerializer(many=True)
     class Meta:
         model = Sale
-        fields = ['status', 'customer', 'items']
+        fields = ['customer', 'items']
 
 class SaleReadSerializer(ModelSerializer):
     items = SaleItemReadSerializer(many=True, read_only=True)

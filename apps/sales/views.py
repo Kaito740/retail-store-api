@@ -60,18 +60,7 @@ class SaleListCreateView(generics.ListCreateAPIView):
         serializer.is_valid(raise_exception=True)
 
         products_data = serializer.validated_data['items']
-        customer_id = request.data.get('customer_id')
-
-        # Obtener cliente si se proporciona
-        customer = None
-        if customer_id:
-            try:
-                customer = Customer.objects.get(id=customer_id)
-            except Customer.DoesNotExist:
-                return Response(
-                    {'error': 'Cliente no encontrado'},
-                    status=status.HTTP_404_NOT_FOUND
-                )
+        customer = serializer.validated_data.get('customer')
 
         try:
             sale = sale_paid(
