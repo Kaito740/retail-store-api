@@ -148,7 +148,7 @@ class LoginView(APIView):
 
         return Response(
             {'error': 'Credenciales inválidas'},
-            status=status.HTTP_401_UNAUTHORIZED
+            status=status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -163,6 +163,6 @@ class LogoutView(APIView):
     def post(self, request):
         request.user.auth_token.delete()
         return Response(
-            {'message': 'Logout exitoso'},
+            {'detail': 'Logout exitoso'},
             status=status.HTTP_200_OK
         )

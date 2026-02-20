@@ -5,7 +5,7 @@ from django.core.validators import MinLengthValidator, MinValueValidator
 # Create your models here.
 class Category(models.Model):
     name = models.CharField(max_length=70, validators=[MinLengthValidator(2,message='El nombre de la categoria es muy corto.')] ,unique=True)
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "categoría"
@@ -29,7 +29,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category,on_delete=models.PROTECT)
     price = models.DecimalField(max_digits=8,decimal_places=2,validators=[MinValueValidator(Decimal('0.00'),message='El precio no puede ser negativo.')])
     stock_quantity = models.PositiveSmallIntegerField()
-    is_active = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "producto"

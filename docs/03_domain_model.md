@@ -67,7 +67,7 @@ Representa una categoría de productos.
 |---|---|---|
 | `id` | AutoField | PK, auto |
 | `name` | CharField(70) | Único, mínimo 2 caracteres |
-| `is_active` | BooleanField | Default: `False` |
+| `is_active` | BooleanField | Default: `True` |
 
 **Comportamiento:** `save()` llama a `full_clean()` antes de persistir.
 
@@ -87,7 +87,7 @@ Representa un artículo del inventario.
 | `category` | FK → Category | `on_delete=PROTECT` |
 | `price` | DecimalField(8,2) | ≥ 0.00 |
 | `stock_quantity` | PositiveSmallIntegerField | ≥ 0 |
-| `is_active` | BooleanField | Default: `False` |
+| `is_active` | BooleanField | Default: `True` |
 
 **Comportamiento:** `save()` llama a `full_clean()` antes de persistir.
 

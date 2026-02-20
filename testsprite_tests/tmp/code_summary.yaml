@@ -1,0 +1,171 @@
+version: "2"
+type: backend
+tech_stack:
+  - language: Python
+  - framework: Django 6.0.1 + Django REST Framework 3.15.2
+  - database: SQLite (development) / PostgreSQL (production)
+  - other: Token Authentication, CORS, Gunicorn
+features:
+  - name: Authentication API
+    description: User authentication with token-based system
+    files:
+      - apps/users/serializers.py
+      - apps/users/views.py
+      - apps/users/urls.py
+    endpoints:
+      - method: POST
+        path: /api/v1/users/login/
+        description: Login and return token
+        auth_required: false
+        response_schema:
+          "200": {"token": "string"}
+          "400": "Invalid credentials"
+      - method: POST
+        path: /api/v1/users/logout/
+        description: Logout and invalidate token
+        auth_required: true
+        response_schema:
+          "200": "Successfully logged out"
+          "401": "Authentication credentials were not provided"
+  - name: Inventory Management API
+    description: CRUD operations for categories and products
+    files:
+      - apps/inventory/models.py
+      - apps/inventory/serializers.py
+      - apps/inventory/views.py
+      - apps/inventory/urls.py
+    endpoints:
+      - method: GET
+        path: /api/v1/inventory/categories/
+        description: List all categories
+        auth_required: true
+        response_schema:
+          "200": "Category[]"
+      - method: POST
+        path: /api/v1/inventory/categories/
+        description: Create a new category
+        auth_required: true
+        request_schema:
+          body:
+            name: string
+            description: string (optional)
+        response_schema:
+          "201": "Category"
+          "400": "Validation error"
+      - method: GET
+        path: /api/v1/inventory/products/
+        description: List all products
+        auth_required: true
+        response_schema:
+          "200": "Product[]"
+      - method: POST
+        path: /api/v1/inventory/products/
+        description: Create a new product
+        auth_required: true
+        request_schema:
+          body:
+            name: string
+            description: string (optional)
+            price: decimal
+            stock: integer
+            category: integer
+        response_schema:
+          "201": "Product"
+          "400": "Validation error"
+  - name: Customer Management API
+    description: CRUD operations for customers
+    files:
+      - apps/users/models.py
+      - apps/users/serializers.py
+      - apps/users/views.py
+      - apps/users/urls.py
+    endpoints:
+      - method: GET
+        path: /api/v1/users/customers/
+        description: List all customers
+        auth_required: true
+        response_schema:
+          "200": "Customer[]"
+      - method: POST
+        path: /api/v1/users/customers/
+        description: Create a new customer
+        auth_required: true
+        request_schema:
+          body:
+            name: string
+            email: string (optional)
+            phone: string (optional)
+        response_schema:
+          "201": "Customer"
+          "400": "Validation error"
+  - name: Sales Management API
+    description: Create and manage sales transactions
+    files:
+      - apps/sales/models.py
+      - apps/sales/serializers.py
+      - apps/sales/views.py
+      - apps/sales/services.py
+      - apps/sales/urls.py
+    endpoints:
+      - method: GET
+        path: /api/v1/sales/
+        description: List all sales
+        auth_required: true
+        response_schema:
+          "200": "Sale[]"
+      - method: POST
+        path: /api/v1/sales/
+        description: Create a new sale
+        auth_required: true
+        request_schema:
+          body:
+            customer: integer (optional)
+            items: [{"product": integer, "quantity": integer}]
+        response_schema:
+          "201": "Sale"
+          "400": "Validation error"
+          "409": "Insufficient stock"
+      - method: PATCH
+        path: /api/v1/sales/{id}/
+        description: Cancel a sale
+        auth_required: true
+        request_schema:
+          body:
+            action: "cancel"
+        response_schema:
+          "200": "Sale"
+          "400": "Invalid action"
+          "409": "Sale already cancelled"
+  - name: Employee Management API
+    description: List and manage employee users
+    files:
+      - apps/users/models.py
+      - apps/users/serializers.py
+      - apps/users/views.py
+      - apps/users/urls.py
+    endpoints:
+      - method: GET
+        path: /api/v1/users/
+        description: List all employees
+        auth_required: true
+        response_schema:
+          "200": "User[]"
+      - method: GET
+        path: /api/v1/users/{id}/
+        description: Get employee details
+        auth_required: true
+        response_schema:
+          "200": "User"
+          "404": "User not found"
+depends_on:
+  - Authentication
+known_limitations:
+  - issue: No input validation on product creation
+    location: apps/inventory/serializers.py
+    impact: Invalid data accepted without error
+  - issue: No pagination on list endpoints
+    location: views.py files
+    impact: Large datasets may cause performance issues
+  - issue: No rate limiting on API endpoints
+    location: settings.py
+    impact: Potential for abuse and DoS attacks

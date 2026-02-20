@@ -46,7 +46,7 @@ Login de empleado. Devuelve el token de autenticación.
 { "error": "Username y password son requeridos" }
 ```
 
-**Response 401 Unauthorized** (credenciales inválidas):
+**Response 400 Bad Request** (credenciales inválidas):
 ```json
 { "error": "Credenciales inválidas" }
 ```
@@ -66,7 +66,7 @@ Authorization: Token <token>
 
 **Response 200 OK:**
 ```json
-{ "message": "Logout exitoso" }
+{ "detail": "Logout exitoso" }
 ```
 
 ---

@@ -137,6 +137,11 @@ def active_category(db):
 
 
 @pytest.fixture
+def inactive_category(db):
+    return Category.objects.create(name='Electronica', is_active=False)
+
+
+@pytest.fixture
 def active_product(db, active_category):
     return Product.objects.create(
         name='Auto de juguete',
@@ -148,21 +153,30 @@ def active_product(db, active_category):
     )
 
 
+@pytest.fixture
+def inactive_product(db, active_category):
+    return Product.objects.create(
+        name='Producto inactivo',
+        barcode='1111111111111',
+        category=active_category,
+        price='5.00',
+        stock_quantity=50,
+        is_active=False
+    )
+
+
 @pytest.mark.django_db
 def test_create_sale_discounts_stock(authenticated_client, active_product):
     """
     Crear una venta debe descontar el stock del producto.
-    customer_id es opcional; si se omite, la venta queda sin cliente.
+    customer es opcional; si se omite, la venta queda sin cliente.
     """
     payload = {
-        'status': 'PAID',
         'items': [{'product': active_product.id, 'quantity': 3}]
-        # customer_id omitido → venta anónima
     }
     response = authenticated_client.post('/api/v1/sales/', payload, format='json')
 
     assert response.status_code == 201
-    assert response.data['status'] == 'PAID'
 
     active_product.refresh_from_db()
     assert active_product.stock_quantity == 97  # 100 - 3
@@ -171,7 +185,6 @@ def test_create_sale_discounts_stock(authenticated_client, active_product):
 @pytest.mark.django_db
 def test_create_sale_insufficient_stock_returns_400(authenticated_client, active_product):
     payload = {
-        'status': 'PAID',
         'items': [{'product': active_product.id, 'quantity': 999}]
     }
     response = authenticated_client.post('/api/v1/sales/', payload, format='json')
