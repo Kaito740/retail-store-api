@@ -46,74 +46,66 @@ pytest apps/users/
 
 ---
 
-## Guía para implementar tests
+## Tests implementados
 
-A continuación se describen los tests que **deberían** implementarse para cubrir la lógica del proyecto.
+Los tests están en `tests/` (no en `apps/*/tests.py`). A continuación se detalla la cobertura:
 
-### `apps/inventory/tests.py`
+### `tests/test_inventory.py`
 
 **Category:**
-- Crear una categoría válida (nombre ≥ 2 chars, is_active=True/False).
-- Intentar crear una categoría con nombre duplicado → debe fallar.
-- Intentar crear una categoría con nombre muy corto (< 2 chars) → debe fallar.
+- ✅ GET categories con token → 200
+- ✅ POST category válida → 201
+- ✅ POST category sin nombre → 400
+- ✅ POST category con nombre corto (<2 chars) → 400
 
 **Product:**
-- Crear un producto con categoría activa → debe funcionar.
-- Intentar crear un producto con categoría inactiva → debe fallar (`ValidationError`).
-- Verificar que el barcode es único.
-- Intentar crear un producto con precio negativo → debe fallar.
-
-**Endpoints (API):**
-- `GET /api/v1/inventory/categories/` sin token → 401.
-- `GET /api/v1/inventory/categories/` con token → 200 + lista.
-- `POST /api/v1/inventory/categories/` con datos válidos → 201.
-- `POST /api/v1/inventory/products/` con categoría inactiva → 400.
+- ✅ GET products con token → 200
+- ✅ POST product válido → 201
+- ✅ POST product con categoría inactiva → 400
+- ✅ POST product con precio negativo → 400
+- ✅ POST product inactivo en venta → 400
 
 ---
 
-### `apps/users/tests.py`
+### `tests/test_users.py`
 
 **Customer:**
-- Crear cliente con nombre y teléfono → guarda correctamente con strip.
-- Crear cliente sin nombre → nombre queda como `'ANONIMO'`.
-- Crear cliente sin teléfono → teléfono queda como `'000000000'`.
+- ✅ POST customer con datos válidos → 201
+- ✅ POST customer sin nombre → default 'ANONIMO'
+- ✅ POST customer sin teléfono → default '000000000'
+- ✅ POST customer con whitespace → strip aplicado
+- ✅ GET customers → 200
+- ✅ GET customers con filtro phone → filtra correctamente
 
-**Login:**
-- `POST /api/v1/users/login/` con credenciales válidas → 200 + token.
-- `POST /api/v1/users/login/` con contraseña incorrecta → 401.
-- `POST /api/v1/users/login/` sin campos → 400.
-
-**Clientes (API):**
-- `GET /api/v1/users/customers/?phone=099` → filtra correctamente.
-- `POST /api/v1/users/customers/` sin campos → crea con valores por defecto.
+**User:**
+- ✅ GET users con token → 200
 
 ---
 
-### `apps/sales/tests.py`
+### `tests/test_auth.py`
 
-**Servicio `sale_paid`:**
-- Crear venta con un producto activo con stock suficiente → venta en PAID, stock descontado.
-- Intentar crear venta con producto sin stock suficiente → ValidationError, sin cambios en BD.
-- Verificar que `unit_price` en `SaleItem` refleja el precio del producto al momento de la venta.
-- Crear venta sin cliente → `customer` es `None`.
-- Verificar que `total_amount` se calcula correctamente (suma de subtotales).
-
-**Servicio `sale_cancelled`:**
-- Cancelar una venta PAID → estado cambia a CANCELLED, stock restaurado.
-- Intentar cancelar una venta ya cancelada → ValidationError.
-- Intentar cancelar una venta inexistente → ValidationError.
-
-**Endpoints (API):**
-- `POST /api/v1/sales/` con producto inactivo → 400.
-- `POST /api/v1/sales/` con stock insuficiente → 400.
-- `GET /api/v1/sales/?status=PAID` → solo devuelve ventas PAID.
-- `GET /api/v1/sales/?date_from=2025-01-01&date_to=2025-01-31` → filtra por fechas.
-- `PATCH /api/v1/sales/<id>/` con `action=cancel` → 200 + venta cancelada.
-- `PATCH /api/v1/sales/<id>/` con acción inválida → 400.
+- ✅ POST login con credenciales válidas → 200 + token
+- ✅ POST login sin credenciales → 400
+- ✅ POST login con credenciales inválidas → 400
+- ✅ POST logout con token → 200
+- ✅ POST logout sin token → 401
 
 ---
 
-## Ejemplo de estructura base para un test
+### `tests/test_sales.py`
+
+- ✅ POST sale con datos válidos → 201, stock descontado
+- ✅ POST sale sin cliente → customer = null
+- ✅ POST sale con stock insuficiente → 400, stock intacto
+- ✅ POST sale con producto inactivo → 400
+- ✅ GET sale details → 200 + items
+- ✅ PATCH cancel sale → 200, stock restaurado
+- ✅ PATCH cancel already cancelled → 400
+- ✅ GET sales con filtro status → filtra correctamente
+
+---
+
+## Estructura de un test
 
 ```python
 import pytest

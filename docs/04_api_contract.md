@@ -334,11 +334,13 @@ El proceso de creación (manejado por `sale_paid` en `services.py`) realiza lo s
 }
 ```
 
-> `customer` es opcional. Si se omite, la venta se registra sin cliente asociado (campo `customer` quedará `null` en la venta).
+> - `customer` es opcional. Si se omite, la venta se registra sin cliente.
+> - Cada ítem requiere `product` (ID) y `quantity` (entero > 0).
 
 **Validaciones previas al crear:**
 - El producto debe existir.
 - El producto debe estar activo (`is_active=True`).
+- La cantidad debe ser mayor a 0.
 - El stock disponible debe ser mayor o igual a la cantidad solicitada.
 
 **Response 201 Created:**

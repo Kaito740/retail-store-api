@@ -74,12 +74,24 @@ Panel admin en `http://localhost:8000/admin/`
 
 ## Tests
 
+La suite de tests usa **pytest** con integración Django. Los tests verifican endpoints de API, validaciones y flujos de negocio.
+
 ```bash
+# Ejecutar todos los tests
 pytest
+
+# Ver detalle
+pytest -v
 
 # Con cobertura
 pytest --cov=apps
 ```
+
+**Tests implementados (29 tests):**
+- `tests/test_auth.py` - Login y logout
+- `tests/test_users.py` - Clientes (CRUD, filtros, defaults)
+- `tests/test_inventory.py` - Categorías y productos
+- `tests/test_sales.py` - Ventas (crear, cancelar, filtros)
 
 ---
 
