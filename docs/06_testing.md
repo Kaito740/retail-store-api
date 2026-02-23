@@ -2,12 +2,13 @@
 
 ## Estado actual
 
-Los archivos de test existen en cada app pero **no contienen tests implementados aún**. El único propósito de los archivos actuales es verificar que pytest esté configurado correctamente.
+Los tests están implementados en `tests/` (directorio raíz). Los archivos en cada app (`apps/*/tests.py`) están vacíos.
 
-Archivos de test presentes (sin implementación):
-- `apps/inventory/tests.py`
-- `apps/users/tests.py`
-- `apps/sales/tests.py`
+Tests implementados:
+- `tests/test_auth.py` - Autenticación (login, logout)
+- `tests/test_users.py` - Customers (CRUD, filtros, defaults)
+- `tests/test_inventory.py` - Categories y Products
+- `tests/test_sales.py` - Ventas (crear, cancelar, filtros)
 
 ---
 
