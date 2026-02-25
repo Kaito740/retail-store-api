@@ -9,9 +9,7 @@ python-dotenv==1.2.1  # Load .env files
 django-cors-headers==4.9.0  # Cross-Origin Resource Sharing
 
 # Database
-psycopg2-binary==2.9.9  # PostgreSQL adapter (optional, for production)
-
-# Development Dependencies
+psycopg2-binary==2.9.9  # PostgreSQL adapter for production
 django-debug-toolbar==4.4.0  # Debug toolbar for development
 
 # Testing
