@@ -52,6 +52,9 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 
 # Orígenes CORS permitidos separados por comas
 CORS_ALLOWED_ORIGINS=http://localhost:3000
+
+# URL de base de datos (opcional en desarrollo - usa SQLite por defecto)
+# DATABASE_URL=sqlite:///db.sqlite3
 ```
 
 Para generar una `SECRET_KEY` segura:
@@ -107,15 +110,76 @@ pytest --cov=apps
 | `DEBUG` | No | `False` | Activa el modo debug. Usar `True` solo en desarrollo. |
 | `ALLOWED_HOSTS` | No | `''` | Hosts permitidos, separados por comas. |
 | `CORS_ALLOWED_ORIGINS` | No | — | Orígenes permitidos para CORS, separados por comas. |
+| `DATABASE_URL` | No | `sqlite:///db.sqlite3` | URL de conexión a la base de datos. |
 
 ---
 
-## Configuración para producción
+## Despliegue en producción
 
-Para producción se recomienda cambiar la base de datos de SQLite a PostgreSQL. La variable `DATABASE_URL` está preparada en `.env.example` pero la configuración actual en `settings.py` usa SQLite directamente. Para migrar a PostgreSQL se debe ajustar el bloque `DATABASES` en `settings.py` y asegurarse de que `psycopg2-binary` esté instalado (ya incluido en `requirements.txt`).
+### Proveedores compatibles
 
-El servidor de producción recomendado es **Gunicorn** (ya incluido en dependencias):
+La aplicación es compatible con cualquier proveedor que soporte Python/Django:
+- **Render**
+- **Railway**
+- **Heroku**
+- **Fly.io**
+- **VPS con Gunicorn**
 
-```bash
-gunicorn config.wsgi:application --bind 0.0.0.0:8000
+### Configuración de base de datos
+
+La aplicación usa `dj-database-url` para parsear la variable `DATABASE_URL`. Esto permite usar diferentes motores de base de datos:
+
+| Motor | DATABASE_URL |
+|---|---|
+| SQLite | `sqlite:///db.sqlite3` |
+| PostgreSQL | `postgresql://user:password@host:5432/dbname` |
+| MySQL | `mysql://user:password@host:3306/dbname` |
+
+### Pasos para desplegar
+
+1. **Configurar variables de entorno** en el dashboard del proveedor:
+
+   ```env
+   SECRET_KEY=tu-clave-secreta-aqui
+   DEBUG=False
+   ALLOWED_HOSTS=tudominio.com,www.tudominio.com
+   CORS_ALLOWED_ORIGINS=https://tuffrontend.com
+   DATABASE_URL=postgresql://user:password@host:5432/dbname
+   ```
+
+2. **Ejecutar migraciones:**
+   ```bash
+   python manage.py migrate
+   ```
+
+3. **Recolectar archivos estáticos:**
+   ```bash
+   python manage.py collectstatic
+   ```
+
+4. **Iniciar Gunicorn:**
+   ```bash
+   gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+   ```
+
+   > En algunos proveedores (como Render), el comando Start puede configurarse directamente en el dashboard.
+
+### Configuración de archivos estáticos
+
+La aplicación usa **WhiteNoise** para servir archivos estáticos en producción. La configuración en `settings.py` incluye:
+
+```python
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STORAGES = {
+    "staticfiles": {
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+    },
+}
 ```
+
+Esto permite que `python manage.py collectstatic` funcione correctamente sin necesidad de un servidor web adicional para servir estáticos.
+
+### Archivos sensibles
+
+**Nunca** agregar el archivo `.env` al repositorio. El `.gitignore` ya incluye esta regla. Usa las variables de entorno del proveedor de hosting para configurar secrets.
