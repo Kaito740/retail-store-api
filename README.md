@@ -63,6 +63,8 @@ python manage.py migrate
 python manage.py createsuperuser
 ```
 
+> **Nota:** Para plataformas sin acceso shell (ej: Render free tier), el proyecto incluye un comando personalizado `create_superuser` que lee las credenciales de variables de entorno. Ver sección de Despliegue.
+
 ### 5. Levantar el servidor
 
 ```bash
@@ -218,7 +220,7 @@ Los empleados **solo pueden ser creados por el superusuario** desde el panel adm
 
 ### Requisitos
 
-- Python 3.10+
+- Python 3.10+ (ver archivo `runtime.txt` para versión exacta)
 - PostgreSQL (recomendado) o SQLite
 - Gunicorn
 
@@ -232,7 +234,42 @@ CORS_ALLOWED_ORIGINS=https://tuffrontend.com
 DATABASE_URL=postgresql://user:password@host:5432/dbname
 ```
 
-### Pasos de despliegue
+### Despliegue en plataformas sin acceso shell (Render free tier)
+
+El plan gratuito de **Render** no incluye acceso shell, por lo que no se puede ejecutar `python manage.py createsuperuser` de forma interactiva. Para解决这个问题, el proyecto incluye un comando personalizado.
+
+#### 1. Configurar variables de entorno
+
+En el panel de tu proveedor, agrega estas variables:
+
+| Variable | Descripción | Ejemplo |
+|----------|-------------|---------|
+| `DJANGO_SUPERUSER_USERNAME` | Usuario del superadmin | `admin` |
+| `DJANGO_SUPERUSER_EMAIL` | Email del superadmin | `admin@tuemail.com` |
+| `DJANGO_SUPERUSER_PASSWORD` | Contraseña del superadmin | `tuPassword123` |
+| `DATABASE_URL` | URL de PostgreSQL | `postgresql://...` |
+| `ALLOWED_HOSTS` | Dominios permitidos | `tu-proyecto.onrender.com` |
+
+#### 2. Configurar comando de build
+
+En Render (u otra plataforma), configura el **Build Command**:
+
+```bash
+pip install -r requirements.txt && python manage.py migrate && python manage.py create_superuser && python manage.py collectstatic --no-input
+```
+
+El comando `create_superuser`:
+- Lee las credenciales de las variables de entorno
+- Verifica si el superusuario ya existe (no crea duplicados)
+- Se ejecuta automáticamente en cada deploy (es seguro porque es idempotente)
+
+#### 3. Start Command
+
+```bash
+gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+```
+
+### Pasos generales de despliegue
 
 1. **Configurar variables de entorno** en tu proveedor (Render, Railway, Heroku, etc.)
 
