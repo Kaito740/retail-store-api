@@ -18,14 +18,16 @@ El sistema está diseñado para ser **simple y directo**:
 | Componente | Tecnología |
 |---|---|
 | Framework | Django 6.0.1 |
-| API | Django REST Framework 3.15.2 |
+| API | Django REST Framework 3.16.1 |
 | Autenticación | Token Authentication (DRF built-in) |
 | CORS | django-cors-headers 4.9.0 |
+| Configuración DB | dj-database-url 3.1.2 |
+| Static files | WhiteNoise 6.11.0 |
 | Base de datos (dev) | SQLite |
 | Base de datos (prod) | PostgreSQL (psycopg2-binary) |
 | Variables de entorno | python-dotenv 1.2.1 |
-| Testing | pytest 8.3.2 + pytest-django + pytest-cov |
-| Servidor producción | Gunicorn 23.0.0 |
+| Testing | pytest 9.0.2 + pytest-django 4.12.0 + pytest-cov 5.0.0 |
+| Servidor producción | Gunicorn 25.1.0 |
 
 ## Arquitectura de aplicaciones
 
@@ -65,10 +67,10 @@ retail-store-api/
 │   └── asgi.py
 ├── apps/
 │   ├── inventory/       # Categorías y productos
-│   ├── users/           # Clientes, empleados y autenticación
-│   └── sales/           # Ventas, ítems y lógica de negocio
-├── docs/                # Documentación del proyecto
-├── .env.example         # Plantilla de variables de entorno
+│   ├── users/          # Clientes, empleados y autenticación
+│   └── sales/          # Ventas, ítems y lógica de negocio
+├── docs/               # Documentación del proyecto
+├── .env.example        # Plantilla de variables de entorno
 ├── manage.py
 ├── pytest.ini
 └── requirements.txt

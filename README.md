@@ -8,12 +8,14 @@ Construida con **Django 6** y **Django REST Framework**.
 
 ## Stack
 
-- **Django 6.0.1** + **Django REST Framework 3.15.2**
+- **Django 6.0.1** + **Django REST Framework 3.16.1**
 - **Autenticación** por Token (DRF built-in)
 - **Base de datos:** SQLite (desarrollo) / PostgreSQL (producción)
-- **CORS:** django-cors-headers
-- **Testing:** pytest + pytest-django + pytest-cov
-- **Servidor de producción:** Gunicorn
+- **CORS:** django-cors-headers 4.9.0
+- **Configuración DB:** dj-database-url 3.1.2
+- **Static files:** WhiteNoise 6.11.0
+- **Testing:** pytest 9.0.2 + pytest-django 4.12.0 + pytest-cov 5.0.0
+- **Servidor de producción:** Gunicorn 25.1.0
 
 ---
 
@@ -102,9 +104,9 @@ retail-store-api/
 ├── config/              # Settings, URLs raíz, WSGI/ASGI
 ├── apps/
 │   ├── inventory/       # Categorías y productos
-│   ├── users/           # Clientes, empleados y autenticación
-│   └── sales/           # Registro y cancelación de ventas
-├── docs/                # Documentación detallada
+│   ├── users/          # Clientes, empleados y autenticación
+│   └── sales/          # Registro y cancelación de ventas
+├── docs/               # Documentación detallada
 ├── .env.example
 ├── manage.py
 ├── pytest.ini
@@ -209,6 +211,47 @@ Los empleados **solo pueden ser creados por el superusuario** desde el panel adm
 1. El superusuario crea su cuenta en el admin.
 2. El empleado hace `POST /api/v1/users/login/` para obtener su token.
 3. Usa el token en el header `Authorization` para operar la API.
+
+---
+
+## Despliegue en producción
+
+### Requisitos
+
+- Python 3.10+
+- PostgreSQL (recomendado) o SQLite
+- Gunicorn
+
+### Variables de entorno requeridas
+
+```env
+SECRET_KEY=tu-clave-secreta-aqui
+DEBUG=False
+ALLOWED_HOSTS=tudominio.com,www.tudominio.com
+CORS_ALLOWED_ORIGINS=https://tuffrontend.com
+DATABASE_URL=postgresql://user:password@host:5432/dbname
+```
+
+### Pasos de despliegue
+
+1. **Configurar variables de entorno** en tu proveedor (Render, Railway, Heroku, etc.)
+
+2. **Ejecutar migraciones:**
+   ```bash
+   python manage.py migrate
+   ```
+
+3. **Recolectar archivos estáticos:**
+   ```bash
+   python manage.py collectstatic
+   ```
+
+4. **Ejecutar Gunicorn:**
+   ```bash
+   gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+   ```
+
+> **Nota:** La configuración de producción usa `dj-database-url` para parsear la variable `DATABASE_URL` y `WhiteNoise` para servir archivos estáticos de forma eficiente.
 
 ---
 
