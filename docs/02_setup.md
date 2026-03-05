@@ -77,6 +77,8 @@ El superusuario es el administrador principal del sistema. Desde su cuenta se cr
 python manage.py createsuperuser
 ```
 
+> **Nota:** Para plataformas sin acceso shell (ej: Render free tier), el proyecto incluye un comando personalizado `create_superuser` que lee las credenciales de variables de entorno. Ver sección de Despliegue.
+
 ## 7. Ejecutar el servidor de desarrollo
 
 ```bash
@@ -183,3 +185,48 @@ Esto permite que `python manage.py collectstatic` funcione correctamente sin nec
 ### Archivos sensibles
 
 **Nunca** agregar el archivo `.env` al repositorio. El `.gitignore` ya incluye esta regla. Usa las variables de entorno del proveedor de hosting para configurar secrets.
+
+---
+
+## Despliegue en plataformas sin acceso shell (Render free tier)
+
+El plan gratuito de **Render** y otras plataformas no incluyen acceso shell, por lo que no se puede ejecutar `createsuperuser` de forma interactiva. El proyecto incluye un comando personalizado para解决这个问题.
+
+### Comando personalizado
+
+El comando `create_superuser` (ubicado en `apps/users/management/commands/`) lee las credenciales de variables de entorno:
+
+```bash
+python manage.py create_superuser --username admin --email admin@email.com --password tuPassword123
+```
+
+O simplemente configurando las variables de entorno:
+- `DJANGO_SUPERUSER_USERNAME`
+- `DJANGO_SUPERUSER_EMAIL`
+- `DJANGO_SUPERUSER_PASSWORD`
+
+El comando es **idempotente**: si el superusuario ya existe, no crea otro.
+
+### Configuración en Render
+
+1. **Environment Variables:**
+
+| Variable | Ejemplo |
+|----------|---------|
+| `DJANGO_SUPERUSER_USERNAME` | `admin` |
+| `DJANGO_SUPERUSER_EMAIL` | `admin@tuemail.com` |
+| `DJANGO_SUPERUSER_PASSWORD` | `tuPassword123` |
+| `DATABASE_URL` | `postgresql://...` |
+| `ALLOWED_HOSTS` | `tu-proyecto.onrender.com` |
+
+2. **Build Command:**
+
+```bash
+pip install -r requirements.txt && python manage.py migrate && python manage.py create_superuser && python manage.py collectstatic --no-input
+```
+
+3. **Start Command:**
+
+```bash
+gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+```
