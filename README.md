@@ -87,7 +87,7 @@ pytest -v
 pytest --cov=apps
 ```
 
-**Tests implementados (29 tests):**
+**Tests implementados (31 tests):**
 - `tests/test_auth.py` - Login y logout
 - `tests/test_users.py` - Clientes (CRUD, filtros, defaults)
 - `tests/test_inventory.py` - Categorías y productos
@@ -163,7 +163,21 @@ Authorization: Token <token>
 }
 ```
 
-> `customer` es opcional. Si se omite, la venta se registra sin cliente asociado.
+Opcionalmente, omitir `customer` o enviar vacío para usar cliente `ANONIMO`:
+```bash
+POST /api/v1/sales/
+Authorization: Token <token>
+
+{
+  "customer": "",
+  "items": [
+    { "product": 3, "quantity": 2 },
+    { "product": 7, "quantity": 1 }
+  ]
+}
+```
+
+> `customer` es opcional. Si se omite o se envía vacío (`""`), la venta se registra con el cliente genérico `ANONIMO`.
 
 La venta se crea en estado `PAID`. El stock se descuenta automáticamente en una transacción atómica.
 
