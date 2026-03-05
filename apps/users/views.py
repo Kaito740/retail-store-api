@@ -22,6 +22,7 @@ from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIV
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 from .models import Customer
@@ -56,10 +57,26 @@ class CustomerDetailView(RetrieveUpdateDestroyAPIView):
     - GET `/customers/<pk>/` devuelve el cliente.
     - PUT/PATCH actualiza.
     - DELETE borra el registro.
+    - PROTECCIÓN: No se puede modificar/eliminar un cliente que tenga ventas asociadas.
     """
     queryset = Customer.objects.all()
     serializer_class = CustomerSerializer
     permission_classes = [IsAuthenticated]
+
+    def perform_update(self, serializer):
+        customer = self.get_object()
+        if customer.sale_set.exists():
+            raise ValidationError(
+                {'detail': 'No se puede modificar un cliente que tiene ventas asociadas'}
+            )
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        if instance.sale_set.exists():
+            raise ValidationError(
+                {'detail': 'No se puede eliminar un cliente que tiene ventas asociadas'}
+            )
+        instance.delete()
 
 
 class UserListView(ListAPIView):

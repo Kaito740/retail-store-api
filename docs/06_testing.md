@@ -77,6 +77,10 @@ Los tests están en `tests/` (no en `apps/*/tests.py`). A continuación se detal
 - ✅ GET customers → 200
 - ✅ GET customers con filtro phone → filtra correctamente
 
+**Protección de clientes con ventas:**
+- ✅ PUT/PATCH cliente con ventas asociadas → 400
+- ✅ DELETE cliente con ventas asociadas → 400
+
 **User:**
 - ✅ GET users con token → 200
 
@@ -95,7 +99,7 @@ Los tests están en `tests/` (no en `apps/*/tests.py`). A continuación se detal
 ### `tests/test_sales.py`
 
 - ✅ POST sale con datos válidos → 201, stock descontado
-- ✅ POST sale sin cliente → customer = null
+- ✅ POST sale sin cliente → usa cliente 'ANONIMO'
 - ✅ POST sale con stock insuficiente → 400, stock intacto
 - ✅ POST sale con producto inactivo → 400
 - ✅ GET sale details → 200 + items
@@ -161,8 +165,8 @@ def inactive_product(db, active_category):
 @pytest.mark.django_db
 def test_create_sale_discounts_stock(authenticated_client, active_product):
     """
-    Crear una venta debe descontar el stock del producto.
-    customer es opcional; si se omite, la venta queda sin cliente.
+    Crear una venta debe descontar del stock del producto.
+    customer es opcional; si se omite o envía vacío, usa cliente 'ANONIMO'.
     """
     payload = {
         'items': [{'product': active_product.id, 'quantity': 3}]

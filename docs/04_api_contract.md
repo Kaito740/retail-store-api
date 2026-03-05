@@ -222,13 +222,19 @@ Obtiene el detalle de un cliente.
 
 Actualización completa de un cliente.
 
+> ⚠️ No se puede modificar un cliente que tenga ventas asociadas. Devuelve 400 Bad Request.
+
 ### `PATCH /api/v1/users/customers/<id>/`
 
 Actualización parcial de un cliente.
 
+> ⚠️ No se puede modificar un cliente que tenga ventas asociadas. Devuelve 400 Bad Request.
+
 ### `DELETE /api/v1/users/customers/<id>/`
 
 Elimina un cliente.
+
+> ⚠️ No se puede eliminar un cliente que tenga ventas asociadas. Devuelve 400 Bad Request.
 
 ---
 
@@ -326,7 +332,7 @@ El proceso de creación (manejado por `sale_paid` en `services.py`) realiza lo s
 **Request body:**
 ```json
 {
-  "customer": 1,
+  "customer": "",
   "items": [
     { "product": 5, "quantity": 3 },
     { "product": 8, "quantity": 1 }
@@ -334,7 +340,17 @@ El proceso de creación (manejado por `sale_paid` en `services.py`) realiza lo s
 }
 ```
 
-> - `customer` es opcional. Si se omite, la venta se registra sin cliente.
+O simplemente omitir el campo `customer`:
+```json
+{
+  "items": [
+    { "product": 5, "quantity": 3 },
+    { "product": 8, "quantity": 1 }
+  ]
+}
+```
+
+> - `customer` es opcional. Si se omite o se envía vacío (`""`), la venta se registra con el cliente genérico `ANONIMO`.
 > - Cada ítem requiere `product` (ID) y `quantity` (entero > 0).
 
 **Validaciones previas al crear:**

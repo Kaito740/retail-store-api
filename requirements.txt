@@ -9,14 +9,9 @@ python-dotenv==1.2.1
 django-cors-headers==4.9.0
 
 # Database
-dj-database-url==3.1.2
-psycopg2-binary==2.9.11
-
-# Static Files (Production)
-whitenoise==6.11.0
-
-# Production Server
-gunicorn==25.1.0
+psycopg2-binary==2.9.9  # PostgreSQL adapter for production
+django-debug-toolbar==4.4.0  # Debug toolbar for development
+dj-database-url==2.2.0
 
 # Testing
 pytest==9.0.2
@@ -28,4 +23,9 @@ flake8==7.1.1
 black==24.8.0
 
 # Documentation
-markdown==3.7
+markdown==3.7  # For DRF browsable API
+django-dbml==0.10.1
+
+# Production Server
+gunicorn==23.0.0  # WSGI HTTP Server
+whitenoise==6.6.0
