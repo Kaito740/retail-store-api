@@ -1,5 +1,8 @@
 import pytest
 from rest_framework import status
+from apps.inventory.models import Category, Product
+from apps.sales.models import Sale
+from decimal import Decimal
 
 
 @pytest.mark.django_db
@@ -59,6 +62,50 @@ class TestCustomers:
         assert len(results) > 0
         for customer in results:
             assert '099' in customer['phone']
+
+    def test_update_customer_with_sales_fails(self, authenticated_client, test_customer, test_user):
+        category = Category.objects.create(name='Test Category', is_active=True)
+        product = Product.objects.create(
+            name='Test Product',
+            barcode='1234567890123',
+            category=category,
+            price=Decimal('10.00'),
+            stock_quantity=100,
+            is_active=True
+        )
+        Sale.objects.create(
+            created_by=test_user,
+            customer=test_customer,
+            status='PAID',
+            total_amount=Decimal('10.00')
+        )
+
+        response = authenticated_client.patch(
+            f'/api/v1/users/customers/{test_customer.id}/',
+            {'name': 'Nuevo Nombre'},
+            format='json'
+        )
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+
+    def test_delete_customer_with_sales_fails(self, authenticated_client, test_customer, test_user):
+        category = Category.objects.create(name='Test Category 2', is_active=True)
+        product = Product.objects.create(
+            name='Test Product 2',
+            barcode='1234567890124',
+            category=category,
+            price=Decimal('10.00'),
+            stock_quantity=100,
+            is_active=True
+        )
+        Sale.objects.create(
+            created_by=test_user,
+            customer=test_customer,
+            status='PAID',
+            total_amount=Decimal('10.00')
+        )
+
+        response = authenticated_client.delete(f'/api/v1/users/customers/{test_customer.id}/')
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
 
 
 @pytest.mark.django_db

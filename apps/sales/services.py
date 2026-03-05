@@ -19,6 +19,12 @@ def _calculate_subtotal(quantity, unit_price):
     return subTotal
 
 def sale_paid(*, created_by, products_data, customer=None):
+    if customer is None:
+        customer, _ = Customer.objects.get_or_create(
+            name='ANONIMO',
+            phone='000000000'
+        )
+    
     with transaction.atomic():
         sale = Sale.objects.create(
             created_by=created_by,

@@ -219,5 +219,5 @@ class TestSales:
             format='json'
         )
         assert response.status_code == status.HTTP_201_CREATED
-        sale_data = response.json()
-        assert sale_data.get('customer') is None
+        sale = Sale.objects.get(id=response.json().get('sale_id'))
+        assert sale.customer.name == 'ANONIMO'

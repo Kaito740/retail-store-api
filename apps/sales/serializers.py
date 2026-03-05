@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer, ValidationError
 from .models import Sale, SaleItem
+from apps.users.models import Customer
 
 class SaleItemSerializer(ModelSerializer):
     class Meta:
@@ -24,9 +25,20 @@ class SaleItemReadSerializer(ModelSerializer):
 
 class SaleSerializer(ModelSerializer):
     items = SaleItemSerializer(many=True)
+    customer = serializers.PrimaryKeyRelatedField(
+        queryset=Customer.objects.all(),
+        required=False,
+        allow_null=True
+    )
+    
     class Meta:
         model = Sale
         fields = ['customer', 'items']
+
+    def validate_customer(self, value):
+        if value == '' or value is None:
+            return None
+        return value
 
 class SaleReadSerializer(ModelSerializer):
     items = SaleItemReadSerializer(many=True, read_only=True)
