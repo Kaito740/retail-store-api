@@ -119,6 +119,10 @@ retail-store-api/
 
 ## Modelo de datos
 
+### Diagrama entidad-relación
+
+![Diagrama de base de datos](./docs/images/schema.svg)
+
 ```
 Category ◄─── Product ◄─── SaleItem ───► Sale ───► User (empleado)
                                           │
@@ -289,6 +293,35 @@ gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
    ```
 
 > **Nota:** La configuración de producción usa `dj-database-url` para parsear la variable `DATABASE_URL` y `WhiteNoise` para servir archivos estáticos de forma eficiente.
+
+---
+
+## Screenshots
+
+### API Endpoints (Postman)
+
+| Imagen | Descripción |
+|--------|-------------|
+| ![Login](./docs/images/endpoint-loginPNG.PNG) | **POST** `/api/v1/users/login/` - Autenticación. Envía username y password, devuelve datos del usuario y token |
+| ![Get Customer](./docs/images/endpoint-customer-get.PNG) | **GET** `/api/v1/users/customers/1/` - Obtener cliente. Devuelve JSON con id, name, phone |
+| ![Get Products](./docs/images/endpoint-inventory-products.PNG) | **GET** `/api/v1/inventory/products/` - Listar productos con paginación |
+| ![Get Product](./docs/images/endpoint-inventory-products-2.PNG) | **GET** `/api/v1/inventory/products/2/` - Obtener producto específico |
+| ![Get Sales](./docs/images/endpoint-sale-get.PNG) | **GET** `/api/v1/sales/` - Listar todas las ventas con paginación |
+| ![Create Sale](./docs/images/endpoint-sale-post.PNG) | **POST** `/api/v1/sales/` - Crear nueva venta |
+| ![Cancel Sale](./docs/images/endpoint-sales-cancelled.PNG) | **PATCH** `/api/v1/sales/1/` - Cancelar venta. Envía `{"action": "cancel"}`, devuelve mensaje de éxito y `status: CANCELLED` |
+
+### Panel Administrativo (Django Admin)
+
+| Imagen | Descripción |
+|--------|-------------|
+| ![Render Sales](./docs/images/render-sales.PNG) | Tabla de ventas en Django Admin desplegado en Render |
+| ![Venta 6](./docs/images/captura%20django-admin-venta6.PNG) | Detalle de la venta #6 en Django Admin |
+
+### Tests
+
+| Imagen | Descripción |
+|--------|-------------|
+| ![Tests](./docs/images/Captura-test-1.PNG) | Suite de tests pasando con `pytest -v --tb=short` |
 
 ---
 
