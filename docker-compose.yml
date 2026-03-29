@@ -1,30 +1,36 @@
 services:
   db:
-    image: postgres:15
+    image: postgres:15-alpine
+    restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=retail_db
       - POSTGRES_USER=adison
       - POSTGRES_PASSWORD=secret_pass
-    ports:
-      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U adison -d retail_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   web:
     image: adisondev/retail-store-api:v1
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - .:/app
+    restart: always
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py collectstatic --noinput &&
+             python manage.py runserver 0.0.0.0:8000"
     ports:
       - "8000:8000"
     environment:
-      - DB_NAME=retail_db
-      - DB_USER=adison
-      - DB_PASSWORD=secret_pass
-      - DB_HOST=db
-      - DB_PORT=5432
+      - SECRET_KEY=tu_clave_super_secreta_pro_2026
+      - DEBUG=True
+      - ALLOWED_HOSTS=localhost,127.0.0.1,0.0.0.0
+      - DATABASE_URL=postgres://adison:secret_pass@db:5432/retail_db
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   postgres_data:
